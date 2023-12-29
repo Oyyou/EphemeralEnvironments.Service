@@ -1,0 +1,7 @@
+version: '3.9'
+
+services:
+  ee.service:
+    environment:
+      - ConnectionStrings__MongoDb=mongodb://nlewin:Password123!@ee.mongo:27017/vibes
+      - ConnectionStrings__DefaultConnection=Host=ee.postgres;Port=5432;Database=postgres;Username=postgres;Password=Password123!

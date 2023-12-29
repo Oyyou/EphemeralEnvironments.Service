@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  ee.service:
+    container_name: ee-service
+    image: ${DOCKER_REGISTRY-}ee-service
+    build:
+      context: .
+      dockerfile: EphemeralEnvironments.Service/Dockerfile
+    networks:
+      - ee_net
+
+networks:
+  ee_net:
+    external: true
