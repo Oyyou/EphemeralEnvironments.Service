@@ -9,8 +9,6 @@ services:
       dockerfile: EphemeralEnvironments.Service/Dockerfile
     networks:
       - ee_net
-    depends_on:
-      - ee.mongo.replica.setup
 
 networks:
   ee_net:
