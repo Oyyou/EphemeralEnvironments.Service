@@ -23,8 +23,22 @@ namespace EphemeralEnvironments.Service
                 postgresConnectionString = configuration.GetConnectionString("DefaultConnection");
                 var mongoConnectionString = configuration.GetConnectionString("MongoDB");
 
-                var mongoClient = new MongoClient(mongoConnectionString);
-                var mongoDatabase = mongoClient.GetDatabase("vibes");
+                MongoClient mongoClient;
+                IMongoDatabase? mongoDatabase = null;
+
+                Helpers.Retry(() =>
+                {
+                    mongoClient = new MongoClient(mongoConnectionString);
+                    mongoDatabase = mongoClient.GetDatabase("vibes");
+                    // Attempt to perform a simple operation to check if the connection is successful
+                    mongoDatabase.RunCommand((Command<BsonDocument>)"{ping:1}");
+                }, TimeSpan.FromSeconds(30), maxAttempts: 5);
+
+                if (mongoDatabase == null)
+                {
+                    throw new Exception($"Unable to connect to mongo: {mongoConnectionString}");
+                }
+
                 var collection = mongoDatabase.GetCollection<BsonDocument>("EventJournal");
 
                 // Read existing documents from the collection
