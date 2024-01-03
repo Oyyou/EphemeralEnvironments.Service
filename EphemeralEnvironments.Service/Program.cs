@@ -48,18 +48,22 @@ namespace EphemeralEnvironments.Service
                     ProcessEntry(document);
                 }
 
-                var options = new ChangeStreamOptions { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
-                var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>().Match("{ operationType: { $in: [ 'insert', 'update' ] } }");
-
-                using (var cursor = collection.Watch(pipeline, options))
+                while (true)
                 {
-                    while (cursor.MoveNext())
+                    try
                     {
-                        foreach (var change in cursor.Current)
+                        var newDocuments = collection.Find(new BsonDocument()).ToList();
+
+                        foreach (var newDocument in newDocuments)
                         {
-                            var newEntry = change.FullDocument;
-                            ProcessEntry(newEntry);
+                            ProcessEntry(newDocument);
                         }
+
+                        Thread.Sleep(1000);
+                    }
+                    catch (Exception e)
+                    {
+                        Helpers.Log($"Error: {e}");
                     }
                 }
             }
@@ -80,9 +84,6 @@ namespace EphemeralEnvironments.Service
             var deserializedDocument = BsonSerializer.Deserialize<Document>(document);
             var id = deserializedDocument.Id;
             var payload = deserializedDocument.Payload;
-
-            Helpers.Log($"Processing '{payload.Type}'");
-
             switch (payload.Type)
             {
                 case "VibeCreated":
@@ -101,6 +102,8 @@ namespace EphemeralEnvironments.Service
                 {
                     return;
                 }
+
+                Helpers.Log($"Processing 'VibeCreated'");
 
                 using (var cmd = new NpgsqlCommand("INSERT INTO vibes (vibe) VALUES (@vibe)", postgresConnection))
                 {
