@@ -28,6 +28,7 @@ namespace EphemeralEnvironments.Service
 
                 Helpers.Retry(() =>
                 {
+                    Helpers.Log($"Attemping to connect to: {mongoConnectionString}");
                     mongoClient = new MongoClient(mongoConnectionString);
                     mongoDatabase = mongoClient.GetDatabase("vibes");
                     // Attempt to perform a simple operation to check if the connection is successful
@@ -38,6 +39,8 @@ namespace EphemeralEnvironments.Service
                 {
                     throw new Exception($"Unable to connect to mongo: {mongoConnectionString}");
                 }
+
+                Helpers.Log($"Connected to mongo successfully");
 
                 var collection = mongoDatabase.GetCollection<BsonDocument>("EventJournal");
 
