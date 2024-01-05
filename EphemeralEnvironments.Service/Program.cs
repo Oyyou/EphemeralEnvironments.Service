@@ -15,7 +15,8 @@ namespace EphemeralEnvironments.Service
         {
             Helpers.Log("Host started");
             var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
                 .Build();
 
             try
