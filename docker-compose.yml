@@ -2,8 +2,6 @@ version: '3.9'
 
 services:
   ee.service:
-    labels:
-      shipyard.route: '/'
     container_name: ee.service
     image: ${DOCKER_REGISTRY-}ee-service
     build:
